@@ -1,28 +1,44 @@
 var fs = require('fs');
-const getUrls = require('get-urls');
+const testFolder = 'C:\\Users\\HARSH\\Documents\\awesome-github';
+var markdownLinkExtractor = require('markdown-link-extractor');
 
-const testFolder = 'C:/Users/HARSH/Desktop/awesome-github';
+global.hash_map = new Set();
+global.counter = 0;
 
-fs.readdir(testFolder, function(err, files) {
-  var txtFiles = files.filter(el => /\.md$/.test(el));
-  //console.log(txtFiles);
-  for(var i = 0; i < txtFiles.length; i++) {
-	//console.log(txtFiles[i]);
-	var file = fs.readFileSync(txtFiles[i], "utf8");
-	//console.log(file);
-	const text = file;
-    var links = getUrls(text);
-	//console.log(links);
-	//console.log(links.size);
-	//for(var j = 0; j < links.size; j++) {
-	//	console.log(links[i]);
-	//}
-	for(let link of links) {
-		console.log(link);
+function readFiles(file) {
+	file = String(file)
+	if (hash_map.has(file)) {
+		return;
 	}
-  }
+	hash_map.add(file)
+
+	var markdown = fs.readFileSync(file).toString();
+	var links = markdownLinkExtractor(markdown);
+
+	console.log('file: '+ file);
+	counter++;
+	for (let link of links) {
+		readFiles(link);
+	}
+}
+
+fs.readdir(testFolder, function (err, files) {
+	
+		var markdown = fs.readFileSync('admob.md').toString();
+		var links = markdownLinkExtractor(markdown);
+	
+		for (let link of links) {
+			if (hash_map.has(link)) {
+				continue;
+			}
+			readFiles(link);
+		}
+		console.log('Count: '+ counter);
 })
 
+
+
+/* --------------OLD CODE--------------------- */
 
 //fs.readdirSync(testFolder).forEach(file => {
 //  console.log(file);
@@ -37,5 +53,5 @@ fs.readdir(testFolder, function(err, files) {
 //var links = getUrls(text);
 
 //for(var i = 0; i < links.length; i++) {
-	
+
 //}
